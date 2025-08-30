@@ -1,0 +1,142 @@
+Project Name: Codefolio
+1. High-Level Goal
+To build a competitive programming platform for an educational institution, similar to LeetCode or CodeChef. The platform will allow students to practice Data Structures and Algorithms by participating in contests managed by an administrator.
+
+2. Technology Stack
+Frontend: React (using Vite for setup)
+
+Backend: Node.js with the Express.js framework
+
+Database & Authentication: Google Firebase (Firestore for the database, Firebase Authentication for users)
+
+3. Detailed Feature Breakdown
+A. Login, Registration & User Management
+Roles: Student and Admin.
+
+Registration: Only Admins can create student accounts. There is no public sign-up.
+
+Unique ID: The PRN number is unique for each student to prevent duplicate accounts.
+
+Password Reset: A "Forgot Password" feature will be implemented using Firebase's built-in email service.
+
+Initial Admin: The first admin account must be created manually in the Firebase console.
+
+B. Admin Dashboard & Capabilities
+Secure Access: The admin dashboard is protected by a login system.
+
+User Management: Admins can add new students via a form.
+
+Contest Management: Admins can create new contests, setting the title, description, start time, and end time.
+
+Problem Management: Admins can add programming problems to specific contests.
+
+Student Monitoring: Admins can view the detailed profiles and statistics of any student.
+
+Live Sessions: Admins can schedule live sessions by posting a meeting link (e.g., Google Meet).
+
+C. Student Experience
+Contest Participation: Students can participate in live contests within the set time frame.
+
+Problem Solving UI: A split-screen interface with the problem description on one side and a code editor on the other. The editor will support multiple languages and have "Run" (against sample cases) and "Submit" (for final judging) buttons.
+
+Contest History & Practice: Students can view all past contests, see their final leaderboards, and "reappear" in them for practice.
+
+Student Profile: A personal dashboard showing:
+
+Basic details (Name, PRN, etc.).
+
+Overall statistics (problems solved, accuracy).
+
+A rating graph to track progress over time.
+
+An activity heatmap.
+
+A list of bookmarked ("Marked") questions.
+
+Anti-Cheating: The system will detect tab-switching during contests and issue warnings, leading to disqualification. Pasting code into the editor will be disabled.
+
+D. Platform Features
+Main Leaderboard: A global ranking of all students based on a dynamic rating system (like Elo) that updates after each contest.
+
+Calendar: A visual calendar showing the schedule of all upcoming and past contests.
+
+4. Current Project Status
+Phase 1: Core Backend & User System - COMPLETE.
+
+Current Position: Phase 2: The Contest Engine - IN PROGRESS.
+
+What is already built and working:
+
+A secure Admin Login system.
+
+A tabbed Admin Dashboard that is only visible after a successful login.
+
+A fully functional form for the admin to add new students, which securely creates a user in Firebase Authentication and saves their details (including a unique PRN) in the Firestore database.
+
+A fully functional form for the admin to create a new contest, which saves the contest details to a contests collection in Firestore.
+
+The Next Immediate Step: To build the user interface and backend logic for an admin to add programming problems to a specific contest.
+
+5. Project Folder Structure
+Codefolio/
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AddStudentForm.jsx
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── CreateContestForm.jsx
+│   │   │   └── LoginForm.jsx
+│   │   ├── App.jsx
+│   │   └── firebase.js
+│   ├── package.json
+│   └── ... (other Vite config files)
+│
+└── server/
+    ├── node_modules/
+    ├── index.js
+    ├── package.json
+    ├── serviceAccountKey.json
+    └── .gitignore
+
+6. Current Codebase
+(You would typically paste the full code for server/index.js, client/src/App.jsx, and all the component files here to give the new AI the exact code context.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Phase 1: User Management
+✅ Complete: Admin login and the ability for an admin to create student accounts.
+
+⏳ Pending: The "Forgot Password" feature for the login page.
+
+Phase 2: The Contest Engine
+✅ Complete: The entire core system. Admins can create contests and add problems. Students can enter contests, solve problems in a real code editor, and get a correct verdict from the judging engine.
+
+⏳ Pending:
+
+The live countdown timers on the contest pages.
+
+The anti-cheating system (detecting tab switching and disabling paste).
+
+Phase 3: Leaderboards & History
+✅ Complete: The detailed, contest-specific leaderboard with point-based scoring and penalty time. The Contest History and Practice Mode are also fully functional.
+
+⏳ Pending: The main, platform-wide leaderboard that ranks all students based on a cumulative rating system (like Elo).
+
