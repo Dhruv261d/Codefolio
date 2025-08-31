@@ -69,7 +69,27 @@ app.post('/api/students/add', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-// --- CONTEST & PROBLEM ROUTES ---
+
+app.get('/api/contests/all', verifyToken, async (req, res) => {
+    try {
+        const snapshot = await db.collection('contests').orderBy('startTime', 'desc').get();
+        const allContests = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                startTime: data.startTime.toDate(),
+                endTime: data.endTime.toDate()
+            };
+        });
+        res.status(200).json(allContests);
+    } catch (error) {
+        console.error("Error fetching all contests:", error);
+        res.status(500).json({ message: 'Error fetching all contests.', error: error.message });
+    }
+});
+
+
 app.post('/api/contests/create', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const { title, description, startTime, endTime } = req.body;
@@ -825,6 +845,83 @@ app.get('/api/users/rating-history', verifyToken, async (req, res) => {
         console.error("Error fetching rating history:", error);
         res.status(500).json({ message: 'Error fetching rating history.', error: error.message });
     }
+});
+
+
+app.post('/api/sessions/add', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const { title, meetingLink, startTime, endTime } = req.body; // ADD startTime and endTime
+        if (!title || !meetingLink || !startTime || !endTime) { // ADD check for times
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+
+        const newSession = {
+            title,
+            meetingLink,
+            startTime: admin.firestore.Timestamp.fromDate(new Date(startTime)),
+            endTime: admin.firestore.Timestamp.fromDate(new Date(endTime)),
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdBy: req.user.uid
+        };
+
+        await db.collection('liveSessions').add(newSession);
+        res.status(201).json({ message: 'Live session created successfully.' });
+
+    } catch (error) {
+        console.error("Error creating live session:", error);
+        res.status(500).json({ message: 'Error creating live session.', error: error.message });
+    }
+});
+
+
+app.get('/api/sessions', verifyToken, async (req, res) => {
+    try {
+    const snapshot = await db.collection('liveSessions').get();
+    
+    // 1. Categorize sessions into three lists
+    const ongoing = [];
+    const upcoming = [];
+    const finished = [];
+    const now = new Date();
+
+    snapshot.forEach(doc => {
+        const session = { id: doc.id, ...doc.data() };
+        const startTime = session.startTime.toDate();
+        const endTime = session.endTime.toDate();
+
+        if (now >= startTime && now < endTime) {
+            ongoing.push(session);
+        } else if (now < startTime) {
+            upcoming.push(session);
+        } else {
+            finished.push(session);
+        }
+    });
+
+    // 2. Sort each category individually
+    // Ongoing and Upcoming should show the soonest first
+    ongoing.sort((a, b) => a.startTime.seconds - b.startTime.seconds);
+    upcoming.sort((a, b) => a.startTime.seconds - b.startTime.seconds);
+    // Finished should show the most recently ended first
+    finished.sort((a, b) => b.endTime.seconds - a.endTime.seconds);
+
+    // 3. Combine the lists in the correct order
+    const sortedSessions = [...ongoing, ...upcoming, ...finished];
+    
+    // 4. Convert timestamps to strings before sending
+    const finalSessions = sortedSessions.map(session => ({
+        ...session,
+        startTime: session.startTime.toDate(),
+        endTime: session.endTime.toDate(),
+        createdAt: session.createdAt.toDate(),
+    }));
+
+    res.status(200).json(finalSessions);
+
+} catch (error) {
+    console.error("Error fetching live sessions:", error);
+    res.status(500).json({ message: 'Error fetching live sessions.', error: error.message });
+}
 });
 
 

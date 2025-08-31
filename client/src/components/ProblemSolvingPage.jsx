@@ -1,5 +1,5 @@
 // client/src/components/ProblemSolvingPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { auth } from '../firebase.js';
 import Editor from '@monaco-editor/react';
 
@@ -14,6 +14,14 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isBookmarked, setIsBookmarked] = useState(false);
+    const [warnings, setWarnings] = useState(0);
+    const [isDisqualified, setIsDisqualified] = useState(false);
+    const [warningMessage, setWarningMessage] = useState('');
+    const isPracticeRef = useRef(isPracticeMode);
+
+    useEffect(() => {
+        isPracticeRef.current = isPracticeMode;
+    }, [isPracticeMode]);
 
     useEffect(() => {
         const fetchProblemDetails = async () => {
@@ -61,6 +69,48 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
             }
         };
         checkBookmarkStatus();
+    }, [problemId]);
+
+
+    useEffect(() => {
+        // Anti-cheating features are only active during a live contest
+        if (isPracticeMode || isDisqualified) {
+            return;
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                const newWarningCount = warnings + 1;
+                setWarnings(newWarningCount);
+
+                if (newWarningCount === 1) {
+                    setWarningMessage('First Warning: Leaving the contest tab is not allowed. Please remain on this page to avoid penalties.');
+                } else if (newWarningCount === 2) {
+                    setWarningMessage('FINAL WARNING: Leaving the tab again will result in your immediate disqualification.');
+                } else if (newWarningCount >= 3) {
+                    setWarningMessage('You have been disqualified for leaving the contest tab multiple times.');
+                    setIsDisqualified(true);
+                    sessionStorage.setItem(`disqualified_${problemId}`, 'true'); 
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Cleanup the event listener when the component unmounts
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [isPracticeMode, warnings, isDisqualified]);
+
+    
+    useEffect(() => {
+        // Check session storage on page load to enforce disqualification
+        const disqualifiedStatus = sessionStorage.getItem(`disqualified_${problemId}`);
+        if (disqualifiedStatus === 'true') {
+            setIsDisqualified(true);
+            setWarningMessage('You have been disqualified for leaving the contest tab multiple times.');
+        }
     }, [problemId]);
 
     const handleRunCode = async () => {
@@ -153,6 +203,30 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
             }
     };
 
+    const handlePaste = (e) => {
+        if (!isPracticeMode) {
+            e.preventDefault();
+            setOutput('Pasting code is disabled during a live contest.');
+        }
+    };
+
+    
+    const handleEditorDidMount = (editor, monaco) => {
+    // This is the correct way to disable paste in the Monaco Editor
+    editor.onDidPaste((e) => {
+        // Use the ref to get the CURRENT value of isPracticeMode
+        if (!isPracticeRef.current) {
+            setOutput('Pasting code is disabled during a live contest.');
+            // This is a workaround to "cancel" the paste by immediately
+            // reverting the text to what it was before the paste.
+            const model = editor.getModel();
+            setTimeout(() => {
+                model.undo();
+            }, 0);
+        }
+    });
+  };
+
     if (loading) return <div>Loading problem...</div>;
     if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
     if (!problem) return <div>Problem not found.</div>;
@@ -168,6 +242,21 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
 
     return (
         <div>
+         {(warningMessage) && (
+             <div style={{
+                 position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                 backgroundColor: 'rgba(0, 0, 0, 0.8)', zIndex: 1000,
+                 display: 'flex', justifyContent: 'center', alignItems: 'center'
+             }}>
+                 <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', textAlign: 'center', maxWidth: '450px' }}>
+                     <h2 style={{color: '#dc3545', fontSize: '1.8rem'}}>{isDisqualified ? 'Disqualified' : 'Warning'}</h2>
+                     <p style={{fontSize: '1.1rem', color: '#333', lineHeight: '1.5'}}>{warningMessage}</p>
+                     {!isDisqualified && 
+                         <button onClick={() => setWarningMessage('')} style={{padding: '10px 20px', marginTop: '10px', cursor: 'pointer'}}>I Understand</button>
+                     }
+                 </div>
+             </div>
+         )}
             <button onClick={onBack} style={{ marginBottom: '20px' }}>&larr; Back to Problems List</button>
             <div style={{ display: 'flex', gap: '20px', height: 'calc(100vh - 150px)' }}>
                 {/* Left Side: Problem Description */}
@@ -204,15 +293,15 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
                             <option value="cpp">C++</option>
                         </select>
                     </div>
-                    {/* UPDATED: Changed flex properties for a fixed layout */}
-                    <div style={{ flexGrow: 1, minHeight: 0, border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div onPaste={handlePaste} style={{ flexGrow: 1, minHeight: 0, border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
                         <Editor
                             height="100%"
                             language={language}
                             theme="vs-dark"
                             value={code}
                             onChange={(value) => setCode(value)}
-                            options={{ minimap: { enabled: false }, fontSize: 14, wordWrap: 'on', scrollBeyondLastLine: false }}
+                            onMount={handleEditorDidMount}
+                            options={{ minimap: { enabled: false }, fontSize: 14, wordWrap: 'on', scrollBeyondLastLine: false, readOnly: isDisqualified }}
                         />
                     </div>
                     <div style={{ flexShrink: 0, marginTop: '10px' }}>
@@ -241,10 +330,10 @@ function ProblemSolvingPage({ problemId, onBack, isPracticeMode = false }) {
                         </div>
                     </div>
                     <div style={{ marginTop: '10px', flexShrink: 0 }}>
-                        <button onClick={handleRunCode} disabled={isProcessing} style={{ marginRight: '10px', padding: '10px 15px' }}>
+                        <button onClick={handleRunCode} disabled={isProcessing || isDisqualified} style={{ marginRight: '10px', padding: '10px 15px' }}>
                             {isProcessing ? 'Processing...' : 'Run'}
                         </button>
-                        <button onClick={handleSubmitCode} disabled={isProcessing} style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '5px' }}>
+                        <button onClick={handleSubmitCode} disabled={isProcessing || isDisqualified} style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '5px' }}>
                             {isProcessing ? 'Processing...' : 'Submit'}
                         </button>
                     </div>

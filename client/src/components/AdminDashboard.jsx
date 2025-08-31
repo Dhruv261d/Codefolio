@@ -4,6 +4,7 @@ import AddStudentForm from './AddStudentForm.jsx';
 import CreateContestForm from './CreateContestForm.jsx';
 import ContestList from './ContestList.jsx';
 import AddProblemForm from './AddProblemForm.jsx';
+import LiveSessionsAdmin from './LiveSessionsAdmin.jsx';
 
 function AdminDashboard({ admin, onLogout }) {
   const [activeView, setActiveView] = useState('students');
@@ -138,6 +139,12 @@ function AdminDashboard({ admin, onLogout }) {
           >
             Manage Contests
           </button>
+          <button
+          onClick={() => setActiveView('sessions')}
+          className={`nav-button ${activeView === 'sessions' ? 'active' : ''}`}
+        >
+          Live Sessions
+        </button>
         </nav>
 
         <main className="admin-main">
@@ -154,6 +161,8 @@ function AdminDashboard({ admin, onLogout }) {
               {renderContestView()}
             </div>
           )}
+          {activeView === 'sessions' && <LiveSessionsAdmin />}
+
         </main>
       </div>
     </>

@@ -8,6 +8,9 @@ import ContestHistory from './ContestHistory.jsx';
 import PracticePage from './PracticePage.jsx';
 import StudentProfile from './StudentProfile.jsx';
 import MainLeaderboard from './MainLeaderboard.jsx';
+import ContestHeader from './ContestHeader.jsx';
+import CalendarPage from './CalendarPage.jsx';
+import LiveSessionsStudent from './LiveSessionsStudent.jsx';
 
 function StudentDashboard({ user, onLogout }) {
   const [activeView, setActiveView] = useState('lobby');
@@ -86,10 +89,10 @@ function StudentDashboard({ user, onLogout }) {
                />;
       case 'history':
         return <ContestHistory 
-                  onPracticeClick={handlePracticeClick} // CHANGE THIS LINE
+                  onPracticeClick={handlePracticeClick} 
                   onLeaderboardClick={handleLeaderboardClick}
                />;
-      case 'practice': // ADD THIS CASE
+      case 'practice': 
               return <PracticePage 
                         contestId={selectedContestId} 
                         onBack={() => setActiveView('history')} 
@@ -98,10 +101,14 @@ function StudentDashboard({ user, onLogout }) {
       case 'profile':
         return <StudentProfile 
                    onSolveClick={(problemId) => handleSolveClick(problemId, true)} 
-                   onPracticeClick={handlePracticeClick} // ADD THIS LINE
+                   onPracticeClick={handlePracticeClick}
                />;
-       case 'main-leaderboard': 
+      case 'main-leaderboard': 
               return <MainLeaderboard />;
+      case 'calendar': 
+              return <CalendarPage />;
+      case 'sessions': 
+              return <LiveSessionsStudent />;
       case 'lobby':
       default:
         return <ContestLobby 
@@ -222,6 +229,38 @@ function StudentDashboard({ user, onLogout }) {
           Leaderboard
         </button>
         <button 
+          onClick={() => setActiveView('calendar')} 
+          style={{
+            padding: '10px 15px',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: activeView === 'calendar' ? 'bold' : 'normal',
+            color: activeView === 'calendar' ? '#007bff' : '#495057',
+            borderBottom: activeView === 'calendar' ? '3px solid #007bff' : '3px solid transparent',
+            marginRight: '20px'
+          }}
+        >
+          Calendar
+        </button>
+        <button 
+          onClick={() => setActiveView('sessions')} 
+          style={{
+            padding: '10px 15px',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: activeView === 'sessions' ? 'bold' : 'normal',
+            color: activeView === 'sessions' ? '#007bff' : '#495057',
+            borderBottom: activeView === 'sessions' ? '3px solid #007bff' : '3px solid transparent',
+            marginRight: '20px'
+          }}
+        >
+          Live Sessions
+        </button>
+        <button 
           onClick={() => setActiveView('profile')} 
           style={{
             padding: '10px 15px',
@@ -246,6 +285,10 @@ function StudentDashboard({ user, onLogout }) {
         padding: '40px 30px',
         boxSizing: 'border-box'
       }}>
+        {/* ADD THIS LOGIC BLOCK */}
+        { (activeView === 'contest' || activeView === 'solve') && !isPracticing &&
+            <ContestHeader contestId={selectedContestId} />
+        }
         {renderContent()}
       </main>
     </div>

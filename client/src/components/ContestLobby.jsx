@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getApps, initializeApp, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import CountdownTimer from './CountdownTimer.jsx';
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -109,7 +110,11 @@ function ContestLobby({ onEnterContest, onLeaderboardClick }) {
                 <p>Starts: {startDate ? startDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Invalid Date'}</p>
                 <p>Ends: {endDate ? endDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Invalid Date'}</p>
               </div>
-              {/* ADDITION: Wrapped buttons in a div for better layout */}
+                  {status.text === 'Upcoming' && startDate && (
+                    <div style={{marginTop: '10px'}}>
+                      <CountdownTimer targetDate={startDate} prefix={"Starts in: "} />
+                    </div>
+                  )}
               <div style={{ marginTop: '15px' }}>
                 <button
                   disabled={!isActive}
