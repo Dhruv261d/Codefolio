@@ -24,7 +24,6 @@ function CreateContestForm() {
       return;
     }
 
-    // const contestData = { title, description, startTime, endTime };
     const contestData = { 
       title, 
       description, 
@@ -32,7 +31,6 @@ function CreateContestForm() {
       endTime: new Date(endTime).toISOString() 
     };
 
-    
     try {
       const idToken = await currentUser.getIdToken();
       const response = await fetch('http://localhost:5000/api/contests/create', {
@@ -55,26 +53,33 @@ function CreateContestForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
+    <form onSubmit={handleSubmit} className="admin-form">
       <h2>Create New Contest</h2>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block' }}>Contest Title:</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required style={{width: '100%', padding: '8px', boxSizing: 'border-box'}} />
+
+      <div className="form-group full-width">
+        <label>Contest Title:</label>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className="form-input" />
       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block' }}>Description:</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows="4" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} />
+
+      <div className="form-group full-width">
+        <label>Description:</label>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required className="form-textarea" />
       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block' }}>Start Time:</label>
-        <input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} required style={{width: '100%', padding: '8px', boxSizing: 'border-box'}} />
+
+      <div className="form-grid">
+        <div className="form-group">
+            <label>Start Time:</label>
+            <input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} required className="form-input" />
+        </div>
+        <div className="form-group">
+            <label>End Time:</label>
+            <input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} required className="form-input" />
+        </div>
       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block' }}>End Time:</label>
-        <input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} required style={{width: '100%', padding: '8px', boxSizing: 'border-box'}} />
-      </div>
-      <button type="submit" style={{ marginTop: '10px', padding: '10px 15px' }}>Create Contest</button>
-      {message && <p style={{ marginTop: '15px', color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
+
+      <button type="submit" className="admin-button primary" style={{marginTop: '10px'}}>Create Contest</button>
+
+      {message && <p style={{ marginTop: '20px', fontWeight: 500, color: message.startsWith('Error') ? '#e74c3c' : '#64ffda' }}>{message}</p>}
     </form>
   );
 }

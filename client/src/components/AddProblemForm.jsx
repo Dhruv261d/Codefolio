@@ -1,29 +1,12 @@
 // client/src/components/AddProblemForm.jsx
 import React, { useState } from 'react';
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-
-// --- START: FIREBASE CONFIGURATION ---
-// This config is included here to prevent any import issues.
-const firebaseConfig = {
-  apiKey: "AIzaSyAtoruRZWCbBmtdKL_zQ2KgBVa5kqIBlvI",
-  authDomain: "codefolio-dc15e.firebaseapp.com",
-  projectId: "codefolio-dc15e",
-  storageBucket: "codefolio-dc15e.appspot.com",
-  messagingSenderId: "976455322727",
-  appId: "1:976455322727:web:900bd38d98b19cfd5b18c2"
-};
-
-// Initialize Firebase safely to prevent re-initialization errors
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-// --- END: FIREBASE CONFIGURATION ---
+import { auth } from '../firebase.js'; // Use the central Firebase auth instance
 
 function AddProblemForm({ contestId, onProblemAdded }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('Easy');
-  const [points, setPoints] = useState(5);
+  const [points, setPoints] = useState(100);
   const [constraints, setConstraints] = useState('');
   const [sampleInput, setSampleInput] = useState('');
   const [sampleOutput, setSampleOutput] = useState('');
@@ -49,7 +32,7 @@ function AddProblemForm({ contestId, onProblemAdded }) {
       title,
       description,
       difficulty,
-      points,
+      points: Number(points),
       constraints,
       sampleInput,
       sampleOutput,
@@ -75,7 +58,7 @@ function AddProblemForm({ contestId, onProblemAdded }) {
       setMessage(`Success: ${data.message}`);
       // Clear form
       setTitle(''); setDescription(''); setConstraints('');
-      setPoints(5); setSampleInput(''); setSampleOutput(''); setHiddenTestCases('');
+      setPoints(100); setSampleInput(''); setSampleOutput(''); setHiddenTestCases('');
       
       if (onProblemAdded) onProblemAdded();
 
@@ -85,51 +68,61 @@ function AddProblemForm({ contestId, onProblemAdded }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Add New Problem to Contest</h2>
-      <div style={{ marginBottom: '10px' }}>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <h2>Add New Problem</h2>
+      
+      <div className="form-group full-width">
         <label>Title:</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required style={{width: '100%', padding: '8px', boxSizing: 'border-box'}} />
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className="form-input" />
       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <label>Description (supports Markdown):</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows="10" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} />
-      </div>
-       <div style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
-            <div style={{ flex: 1 }}>
-                <label>Difficulty:</label>
-                <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} required style={{width: '100%', padding: '8px'}}>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                </select>
-            </div>
-            <div style={{ flex: 1 }}>
-                <label>Points:</label>
-                <input type="number" value={points} onChange={(e) => setPoints(e.target.value)} required min="1" style={{width: '100%', padding: '8px', boxSizing: 'border-box'}} />
-            </div>
-       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <label>Constraints:</label>
-        <textarea value={constraints} onChange={(e) => setConstraints(e.target.value)} required rows="3" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} />
-      </div>
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
-        <div style={{ flex: 1 }}>
+
+      <div className="form-grid">
+        <div className="form-group">
+            <label>Description (Markdown supported):</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows="8" className="form-textarea" />
+        </div>
+        <div className="form-group">
+            <label>Constraints:</label>
+            <textarea value={constraints} onChange={(e) => setConstraints(e.target.value)} required rows="8" className="form-textarea" />
+        </div>
+        <div className="form-group">
+            <label>Difficulty:</label>
+            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} required className="form-select">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+        <div className="form-group">
+            <label>Points:</label>
+            <input type="number" value={points} onChange={(e) => setPoints(e.target.value)} required min="1" className="form-input" />
+        </div>
+        <div className="form-group">
             <label>Sample Input:</label>
-            <textarea value={sampleInput} onChange={(e) => setSampleInput(e.target.value)} required rows="4" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} />
+            <textarea value={sampleInput} onChange={(e) => setSampleInput(e.target.value)} required rows="6" className="form-textarea" />
         </div>
-        <div style={{ flex: 1 }}>
+        <div className="form-group">
             <label>Sample Output:</label>
-            <textarea value={sampleOutput} onChange={(e) => setSampleOutput(e.target.value)} required rows="4" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} />
+            <textarea value={sampleOutput} onChange={(e) => setSampleOutput(e.target.value)} required rows="6" className="form-textarea" />
         </div>
       </div>
-       <div style={{ marginBottom: '10px' }}>
+      
+       <div className="form-group full-width">
         <label>Hidden Test Cases:</label>
-        <p style={{fontSize: '0.8em', color: '#666', margin: '0 0 5px 0'}}>Format: `input:::output` for each case, separated by `---`.</p>
-        <textarea value={hiddenTestCases} onChange={(e) => setHiddenTestCases(e.target.value)} required rows="8" style={{width: '100%', padding: '8px', boxSizing: 'border-box', resize: 'vertical'}} placeholder={"5 10:::15\n---\n-2 3:::1"}/>
+        <p style={{fontSize: '0.8em', color: '#8892b0', margin: '0 0 8px 0'}}>Format: `input:::output` for each case, separated by `---` on a new line.</p>
+        <textarea 
+            value={hiddenTestCases} 
+            onChange={(e) => setHiddenTestCases(e.target.value)} 
+            required 
+            rows="10" 
+            className="form-textarea" 
+            placeholder={"5 10:::15\n---\n-2 3:::1"}
+        />
       </div>
-      <button type="submit" style={{ marginTop: '10px', padding: '10px 15px' }}>Add Problem</button>
-      {message && <p style={{ marginTop: '15px', color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
+
+      <button type="submit" className="admin-button primary" style={{marginTop: '10px'}}>Add Problem</button>
+      
+      {message && <p style={{ marginTop: '20px', fontWeight: 500, color: message.startsWith('Error') ? '#e74c3c' : '#64ffda' }}>{message}</p>}
     </form>
   );
 }

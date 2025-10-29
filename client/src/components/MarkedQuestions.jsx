@@ -25,6 +25,7 @@ function MarkedQuestions({ onSolveClick }) {
                 const data = await response.json();
                 setQuestions(data);
             } catch (err) {
+                // --- THIS IS THE FIX: Added the missing curly brace ---
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -37,39 +38,46 @@ function MarkedQuestions({ onSolveClick }) {
     if (loading) return <div>Loading marked questions...</div>;
     if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
+    const getDifficultyClass = (difficulty) => {
+        switch (difficulty) {
+            case 'Easy': return 'difficulty-easy';
+            case 'Medium': return 'difficulty-medium';
+            case 'Hard': return 'difficulty-hard';
+            default: return '';
+        }
+    };
+
     return (
-        <div style={{ marginTop: '20px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#333' }}>
-                <thead>
-                    <tr style={{ borderBottom: '2px solid #dee2e6' }}>
-                        <th style={{ padding: '12px', textAlign: 'left' }}>Problem Title</th>
-                        <th style={{ padding: '12px', textAlign: 'left' }}>Difficulty</th>
-                        <th style={{ padding: '12px', textAlign: 'left' }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {questions.length > 0 ? (
-                        questions.map(q => (
-                            <tr key={q.id} style={{ borderBottom: '1px solid #eee' }}>
-                                <td style={{ padding: '12px' }}>{q.title}</td>
-                                <td style={{ padding: '12px', color: q.difficulty === 'Hard' ? 'red' : q.difficulty === 'Medium' ? 'orange' : 'green' }}>
-                                    {q.difficulty}
-                                </td>
-                                <td style={{ padding: '12px' }}>
-                                    {/* This button will navigate to the problem page later */}
-                                    <button onClick={() => onSolveClick(q.id, true)}>Solve Again</button>                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="3" style={{ padding: '12px', textAlign: 'center' }}>
-                                You haven't bookmarked any questions yet.
+        <table className="profile-table">
+            <thead>
+                <tr>
+                    <th>Problem Title</th>
+                    <th>Difficulty</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {questions.length > 0 ? (
+                    questions.map(q => (
+                        <tr key={q.id}>
+                            <td>{q.title}</td>
+                            <td className={getDifficultyClass(q.difficulty)}>
+                                {q.difficulty}
+                            </td>
+                            <td>
+                                <button onClick={() => onSolveClick(q.id, true)} className="table-action-button">Solve Again</button>
                             </td>
                         </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="3" style={{ textAlign: 'center' }}>
+                            You haven't bookmarked any questions yet.
+                        </td>
+                    </tr>
+                )}
+            </tbody>
+        </table>
     );
 }
 

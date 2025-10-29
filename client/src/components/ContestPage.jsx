@@ -1,49 +1,33 @@
 // client/src/components/ContestPage.jsx
 import React, { useState, useEffect } from 'react';
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { auth } from '../firebase.js';
+import '../css/ContestPage.css';
 
-// --- START: FIREBASE CONFIGURATION ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAtoruRZWCbBmtdKL_zQ2KgBVa5kqIBlvI",
-  authDomain: "codefolio-dc15e.firebaseapp.com",
-  projectId: "codefolio-dc15e",
-  storageBucket: "codefolio-dc15e.appspot.com",
-  messagingSenderId: "976455322727",
-  appId: "1:976455322727:web:900bd38d98b19cfd5b18c2"
-};
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-// --- END: FIREBASE CONFIGURATION ---
-
-// ADDITION: Accept the 'onSolveClick' prop
 function ContestPage({ contestId, onBack, onSolveClick }) {
+    const [contest, setContest] = useState(null);
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const fetchProblems = async () => {
-            if (!auth.currentUser) {
-                setError("You must be logged in to view problems.");
-                setLoading(false);
-                return;
-            }
-
+        const fetchContestData = async () => {
+            if (!auth.currentUser || !contestId) return;
+            setLoading(true);
             try {
                 const idToken = await auth.currentUser.getIdToken();
-                const response = await fetch(`http://localhost:5000/api/contests/${contestId}/problems`, {
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
+                const [contestRes, problemsRes] = await Promise.all([
+                    fetch(`http://localhost:5000/api/contests/${contestId}`, { headers: { 'Authorization': `Bearer ${idToken}` } }),
+                    fetch(`http://localhost:5000/api/contests/${contestId}/problems`, { headers: { 'Authorization': `Bearer ${idToken}` } })
+                ]);
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch problems.');
-                }
+                if (!contestRes.ok) throw new Error('Failed to fetch contest details.');
+                if (!problemsRes.ok) throw new Error('Failed to fetch problems.');
 
-                const data = await response.json();
-                setProblems(data);
+                const contestData = await contestRes.json();
+                const problemsData = await problemsRes.json();
+
+                setContest(contestData);
+                setProblems(problemsData);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -51,49 +35,87 @@ function ContestPage({ contestId, onBack, onSolveClick }) {
             }
         };
 
-        if (contestId) {
-            fetchProblems();
-        }
+        fetchContestData();
     }, [contestId]);
 
-    if (loading) return <div>Loading problems...</div>;
+    if (loading) return <div>Loading contest...</div>;
     if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
+    const getDifficultyClass = (difficulty) => {
+        switch (difficulty) {
+            case 'Easy': return 'difficulty-easy';
+            case 'Medium': return 'difficulty-medium';
+            case 'Hard': return 'difficulty-hard';
+            default: return '';
+        }
+    };
+
+    // --- UPDATED: LeetCode-style contest rules from your screenshots ---
+    const leetCodeStyleInstructions = `
+        <h4>Important Notes</h4>
+        <ul>
+            <li>The penalty time of <strong>5 minutes</strong> will be applied for each wrong submission.</li>
+            <li>To ensure the fairness of the contest, hidden test cases will not be revealed for incorrect submissions.</li>
+            <li>The final rating for this contest will be updated within 5 working days.</li>
+        </ul>
+
+        <h4>Contest Violations</h4>
+        <p>The following actions are considered contest violations:</p>
+        <ul>
+            <li>Submitting from multiple accounts during a single contest.</li>
+            <li>Multiple accounts submitting similar code for the same problem.</li>
+            <li>Disclosing contest-related content (e.g., solutions) publicly before the contest ends.</li>
+            <li>Using code generation tools or any external assistance to solve problems is strictly prohibited.</li>
+        </ul>
+
+        <h4>Penalties for Violation</h4>
+        <p>This platform has a <strong>ZERO TOLERANCE</strong> policy for cheating and plagiarism. Users found to be in violation of contest rules will face the following penalties:</p>
+        <ul>
+            <li><strong>First Violation:</strong> Contest score will be reset to zero and the account will be banned for 1 month.</li>
+            <li><strong>Second Violation:</strong> Contest score will be reset to zero and the account will be permanently deactivated without appeal.</li>
+        </ul>
+        <p>Good luck and compete fairly!</p>
+    `;
+
+    const finalInstructions = leetCodeStyleInstructions;
+
     return (
-        <div>
-            <button onClick={onBack} style={{ marginBottom: '20px' }}>&larr; Back to Contest Lobby</button>
-            <h2 style={{color: '#333'}}>Contest Problems</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr style={{ borderBottom: '2px solid #333' }}>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#333' }}>#</th>
-                        <th style={{ padding: '8px', textAlign: 'left',color: '#333' }}>Title</th>
-                        <th style={{ padding: '8px', textAlign: 'left',color: '#333' }}>Difficulty</th>
-                        <th style={{ padding: '8px', textAlign: 'left',color: '#333' }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div className="contest-page-container">
+            <div className="contest-page-header">
+                <button onClick={onBack} className="back-button">&larr; Back</button>
+                {/* <h2 className="contest-page-title">{contest?.title || 'Contest'}</h2> */}
+            </div>
+            
+            <div className="contest-grid">
+                <div className="instructions-card">
+                    <h3 className="instructions-title">Rules & Instructions</h3>
+                    <div 
+                        className="instructions-content" 
+                        dangerouslySetInnerHTML={{ __html: finalInstructions }}
+                    />
+                </div>
+
+                <div className="problem-list-container">
                     {problems.length > 0 ? (
                         problems.map((problem, index) => (
-                            <tr key={problem.id} style={{ borderBottom: '1px solid #ccc' }}>
-                                <td style={{ padding: '8px', color: '#333' }}>{index + 1}</td>
-                                <td style={{ padding: '8px', color: '#333' }}>{problem.title}</td>
-                                <td style={{ padding: '8px', color: problem.difficulty === 'Hard' ? 'red' : problem.difficulty === 'Medium' ? 'orange' : 'green' }}>
+                            <div key={problem.id} className="problem-list-item">
+                                <div className="problem-index">{index + 1}</div>
+                                <div className="problem-title">{problem.title}</div>
+                                <div className={getDifficultyClass(problem.difficulty)}>
                                     {problem.difficulty}
-                                </td>
-                                <td style={{ padding: '8px' }}>
-                                    {/* ADDITION: Add the onClick handler to the button */}
-                                    <button onClick={() => onSolveClick(problem.id)}>Solve</button>
-                                </td>
-                            </tr>
+                                </div>
+                                <div>
+                                    <button onClick={() => onSolveClick(problem.id)} className="solve-button">Solve</button>
+                                </div>
+                            </div>
                         ))
                     ) : (
-                        <tr>
-                            <td colSpan="4" style={{ padding: '8px', textAlign: 'center', color: '#333' }}>No problems found for this contest.</td>
-                        </tr>
+                        <div style={{ textAlign: 'center', color: '#8892b0' }}>
+                            No problems found for this contest.
+                        </div>
                     )}
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
     );
 }

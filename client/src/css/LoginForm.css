@@ -1,0 +1,110 @@
+.login-form-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 50px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+    border-top: 5px solid #6a11cb;
+}
+
+.login-form-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.login-form-subtitle {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 35px;
+    font-size: 1rem;
+}
+
+.login-input-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.login-input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #bdc3c7;
+    transition: color 0.3s ease;
+    pointer-events: none; /* Make icon non-interactive */
+}
+
+.login-form-group input {
+    width: 100%;
+    padding: 15px 50px; /* Make space for icons on both sides */
+    box-sizing: border-box;
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #34495e; /* --- THIS IS THE FIX for readable text --- */
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.login-form-group input:focus {
+    outline: none;
+    border-color: #8e44ad;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(106, 17, 203, 0.1);
+}
+
+.login-form-group input:focus + .login-input-icon {
+    color: #8e44ad;
+}
+
+/* --- NEW STYLES for the toggle button --- */
+.toggle-password-button {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #95a5a6; /* A visible but subtle color */
+    padding: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password-button:hover {
+    color: #34495e; /* Darken on hover */
+}
+
+.login-form-button {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+    margin-top: 15px;
+}
+
+.login-form-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+}
+
+.login-form-message {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 500;
+    color: #e74c3c;
+}

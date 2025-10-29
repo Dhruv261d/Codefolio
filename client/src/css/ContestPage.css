@@ -1,0 +1,211 @@
+.contest-page-container {
+    background-color: transparent; /* The main container is now just for layout */
+}
+
+.contest-page-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.back-button {
+    background: transparent;
+    border: 1px solid #303C55;
+    color: #8892b0;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: #303C55;
+    color: #ccd6f6;
+}
+
+.contest-page-title {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #ffffff;
+}
+
+/* --- NEW: Two-column grid layout --- */
+.contest-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* 1/3 for instructions, 2/3 for problems */
+    gap: 30px;
+    align-items: start;
+}
+
+/* --- NEW: Styling for the instructions card --- */
+.instructions-card {
+    background-color: #172a45;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #303C55;
+    position: sticky; /* Makes it stick on scroll */
+    top: 40px;
+    width: 700px;
+}
+
+.instructions-title {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #303C55;
+}
+
+.instructions-content {
+    color: #8892b0;
+    line-height: 1.7;
+}
+.instructions-content ul {
+    padding-left: 20px;
+}
+.instructions-content li {
+    margin-bottom: 10px;
+}
+
+
+/* Problem list styles are mostly unchanged */
+.problem-list-container {
+    background-color: #172a45;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #303C55;
+}
+
+.problem-list-item {
+    display: grid;
+    grid-template-columns: 50px 3fr 1fr 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #0b192f;
+    transition: background-color 0.2s ease;
+}
+
+/* ... (rest of the problem list styles are the same) ... */
+
+.problem-list-item:not(:last-child) {
+    margin-bottom: 15px;
+}
+
+.problem-list-item:hover {
+    background-color: #303C55;
+}
+
+.problem-index {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #8892b0;
+}
+
+.problem-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #ccd6f6;
+}
+
+.solve-button {
+    background-color: #64ffda; /* Teal accent color */
+    color: #0b192f; /* Dark text on button */
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.solve-button:hover {
+    background-color: #52d1b8;
+}
+
+/* Difficulty colors from StudentProfile */
+.difficulty-easy { color: #38b2ac; font-weight: 600; }
+.difficulty-medium { color: #d69e2e; font-weight: 600; }
+.difficulty-hard { color: #e53e3e; font-weight: 600; }
+
+
+
+/* ... (Keep all existing styles) ... */
+
+/* --- ADD these styles at the end of the file --- */
+.instructions-content ul {
+    padding-left: 20px;
+    margin-top: 15px;
+}
+
+.instructions-content li {
+    margin-bottom: 12px;
+}
+
+.instructions-content strong {
+    color: #ccd6f6; /* Brighter color for headings like 'Timing' */
+    font-weight: 600;
+}
+
+/* ... (Keep all existing styles) ... */
+
+/* --- ADD these styles at the end of the file --- */
+.instructions-content h4 {
+    color: #ccd6f6; /* Brighter color for subheadings */
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.instructions-content p {
+    margin-bottom: 15px;
+}
+
+.instructions-content ul {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.instructions-content li {
+    margin-bottom: 12px;
+}
+
+.instructions-content strong {
+    color: #64ffda; /* Teal accent for important words */
+    font-weight: 600;
+}
+
+/* ... (Keep all your existing styles for the layout) ... */
+
+/* --- ADD these styles at the end of the file --- */
+.instructions-content h4 {
+    color: #ccd6f6; /* Brighter color for subheadings like "Important Notes" */
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.instructions-content p {
+    margin-bottom: 15px;
+}
+
+.instructions-content ul {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.instructions-content li {
+    margin-bottom: 12px;
+}
+
+.instructions-content strong {
+    color: #64ffda; /* Teal accent for important words like "5 minutes" */
+    font-weight: 600;
+}

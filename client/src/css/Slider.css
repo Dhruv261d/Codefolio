@@ -1,0 +1,55 @@
+.slider-container {
+    width: 100%;
+    max-width: 500px;
+    color: #fff;
+    text-align: center;
+}
+
+.slider-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.slider-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background-color: #fff;
+    margin-bottom: 30px;
+    object-fit: cover;
+    border: 5px solid #007bff;
+}
+
+.slider-subtitle {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: #aab8c2;
+    margin: 0;
+}
+
+.slider-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 10px 0 20px 0;
+}
+
+.slider-description {
+    font-size: 1.1rem;
+    color: #e1e8ed;
+    line-height: 1.6;
+    max-width: 450px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

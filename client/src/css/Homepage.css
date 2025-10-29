@@ -1,0 +1,28 @@
+/* Main container for the split-screen layout */
+.homepage-split-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Left side (Slider) */
+.homepage-left {
+    flex: 1;
+    background: linear-gradient(135deg, #434343 0%, #000000 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    overflow: hidden;
+}
+
+/* Right side (Login) */
+.homepage-right {
+    flex: 1;
+    background-color: #f4f7fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}

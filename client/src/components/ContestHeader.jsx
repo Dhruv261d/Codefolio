@@ -51,15 +51,15 @@ function ContestHeader({ contestId }) {
     return (
         <div style={{ 
             padding: '15px 20px', 
-            border: '1px solid #dee2e6', 
+            // border: '1px solid #dee2e6', 
             borderRadius: '8px', 
-            backgroundColor: '#fff', 
+            // backgroundColor: '#172a45', 
             marginBottom: '30px',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
         }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#343a40' }}>{contest.title}</h2>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#dee2e6' }}>{contest.title}</h2>
             {endTime ? (
                 <CountdownTimer targetDate={endTime} prefix={"Time Remaining: "} />
             ) : (

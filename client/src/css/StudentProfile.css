@@ -1,0 +1,113 @@
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.profile-card {
+    /* --- NEW: "Dracula" Inspired Background --- */
+    background-color: #282a36; /* Dark purplish-gray */
+    border: 1px solid #44475a; /* A slightly lighter border for definition */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    
+    /* Layout properties remain the same */
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.profile-card.span-3 { grid-column: span 3; }
+.profile-card.span-2 { grid-column: span 2; }
+
+.profile-title {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+}
+
+/* Stats Cards (Total Submissions, etc.) */
+.stats-label {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: #8892b0;
+}
+
+.stats-value {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: 700;
+    color: #ccd6f6;
+}
+
+/* Heatmap Calendar Dark Theme */
+.react-calendar-heatmap .color-github-0 { fill: #2d333b; }
+.react-calendar-heatmap .color-github-1 { fill: #0e4429; }
+.react-calendar-heatmap .color-github-2 { fill: #006d32; }
+.react-calendar-heatmap .color-github-3 { fill: #26a641; }
+.react-calendar-heatmap .color-github-4 { fill: #39d353; }
+.react-calendar-heatmap text { fill: #8892b0; }
+
+.recharts-tooltip-wrapper {
+    background: #0b192f !important;
+    border: 1px solid #303C55 !important;
+    border-radius: 8px !important;
+    color: #ccd6f6 !important;
+}
+
+/* Styling for tables inside the profile (History & Marked Questions) */
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #ccd6f6;
+}
+
+.profile-table th, .profile-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #303C55;
+}
+
+.profile-table th {
+    font-size: 0.8rem;
+    color: #8892b0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.profile-table tr:last-child td {
+    border-bottom: none;
+}
+
+.profile-table tr:hover {
+    background-color: #303C55;
+}
+
+.table-action-button {
+    background-color: #303C55;
+    color: #64ffda;
+    border: 1px solid #64ffda;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.table-action-button:hover {
+    background-color: rgba(100, 255, 218, 0.1);
+}
+
+/* ... (keep all your existing styles) ... */
+
+/* --- ADD THESE NEW STYLES AT THE END --- */
+.difficulty-easy {
+    color: #38b2ac; /* Teal */
+    font-weight: 600;
+}
+.difficulty-medium {
+    color: #d69e2e; /* Yellow */
+    font-weight: 600;
+}
+.difficulty-hard {
+    color: #e53e3e; /* Red */
+    font-weight: 600;
+}

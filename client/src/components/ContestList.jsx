@@ -1,23 +1,8 @@
 // client/src/components/ContestList.jsx
 import React, { useState, useEffect } from 'react';
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { auth } from '../firebase.js';
 
-// --- START: FIREBASE CONFIGURATION ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAtoruRZWCbBmtdKL_zQ2KgBVa5kqIBlvI",
-  authDomain: "codefolio-dc15e.firebaseapp.com",
-  projectId: "codefolio-dc15e",
-  storageBucket: "codefolio-dc15e.appspot.com",
-  messagingSenderId: "976455322727",
-  appId: "1:976455322727:web:900bd38d98b19cfd5b18c2"
-};
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-// --- END: FIREBASE CONFIGURATION ---
-
-function ContestList({ onAddProblemClick }) {
+function ContestList({ onAddProblemClick, setContestView }) {
     const [contests, setContests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -39,23 +24,42 @@ function ContestList({ onAddProblemClick }) {
         const now = new Date();
         const start = parseFirestoreDate(startTime);
         const end = parseFirestoreDate(endTime);
-        if (!start || !end) return { text: 'Invalid Date', color: 'red' };
-        if (now < start) return { text: 'Upcoming', color: 'blue' };
-        if (now >= start && now < end) return { text: 'Active', color: 'green' };
-        return { text: 'Finished', color: 'grey' };
+        if (!start || !end) return { text: 'Invalid Date' };
+        if (now < start) return { text: 'Upcoming' };
+        if (now >= start && now < end) return { text: 'Active' };
+        return { text: 'Finished' };
     };
 
-    const getCountdown = (endTime) => {
-        const end = parseFirestoreDate(endTime);
-        const now = new Date();
-        const diffMs = end - now;
-        if (diffMs <= 0) return '00:00:00';
+    const fetchContests = async () => {
+        if (!auth.currentUser) {
+            setError("Authentication session expired. Please log in again.");
+            setLoading(false);
+            return;
+        }
+        try {
+            setLoading(true);
+            const idToken = await auth.currentUser.getIdToken();
+            const response = await fetch('http://localhost:5000/api/contests', {
+                headers: { 'Authorization': `Bearer ${idToken}` }
+            });
 
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch contests.');
+            }
 
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const data = await response.json();
+            const sorted = data.sort((a, b) => {
+                const aStart = parseFirestoreDate(a.startTime)?.getTime() || 0;
+                const bStart = parseFirestoreDate(b.startTime)?.getTime() || 0;
+                return bStart - aStart;
+            });
+            setContests(sorted);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleFinalize = async (contestId) => {
@@ -68,71 +72,40 @@ function ContestList({ onAddProblemClick }) {
             });
             if (!response.ok) throw new Error('Failed to finalize.');
             setMessage('Leaderboard finalized successfully!');
-            // Refresh the contest list to update the button's visibility
-            const refreshResponse = await fetch('http://localhost:5000/api/contests', { headers: { 'Authorization': `Bearer ${idToken}` } });
-            const data = await refreshResponse.json();
-            setContests(data);
+            fetchContests();
         } catch (err) {
             setMessage(`Error: ${err.message}`);
         }
     };
 
     useEffect(() => {
-        const fetchContests = async () => {
-            const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    try {
-                        const idToken = await user.getIdToken();
-                        const response = await fetch('http://localhost:5000/api/contests', {
-                            headers: { 'Authorization': `Bearer ${idToken}` }
-                        });
-
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || 'Failed to fetch contests.');
-                        }
-
-                        const data = await response.json();
-                        console.log("Fetched contests:", data);
-                        const sorted = data.sort((a, b) => {
-                            const aStart = parseFirestoreDate(a.startTime)?.getTime() || 0;
-                            const bStart = parseFirestoreDate(b.startTime)?.getTime() || 0;
-                            return aStart - bStart;
-                        });
-                        setContests(sorted);
-                    } catch (err) {
-                        setError(err.message);
-                    } finally {
-                        setLoading(false);
-                    }
-                } else {
-                    setError("You must be logged in to view contests.");
-                    setLoading(false);
-                }
-            });
-            return () => unsubscribe();
-        };
-
         fetchContests();
     }, []);
 
     if (loading) return <div>Loading contests...</div>;
-    if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+    if (error) return <div style={{ color: '#e74c3c' }}>Error: {error}</div>;
 
     return (
-        <div>
-            <h2>Existing Contests</h2>
-            {message && <p>{message}</p>} {/* ADD THIS LINE */}
-
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="admin-table-container">
+            <div className='Exist-button'>
+                <h2>Existing Contests</h2>
+                <button
+                    onClick={() => setContestView('create')}
+                    className="admin-button primary create-contest-button"
+                    style={{ marginBottom: '30px' }}
+                >
+                    Create New Contest
+                </button>
+            </div>
+            {message && <p>{message}</p>}
+            <table className="admin-table">
                 <thead>
-                    <tr style={{ borderBottom: '2px solid #333' }}>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>Title</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>Start Time (IST)</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>End Time (IST)</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>Status</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>Countdown</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>Actions</th>
+                    <tr>
+                        <th>Title</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,35 +114,27 @@ function ContestList({ onAddProblemClick }) {
                             const status = getContestStatus(contest.startTime, contest.endTime);
                             const startDate = parseFirestoreDate(contest.startTime);
                             const endDate = parseFirestoreDate(contest.endTime);
-                            const countdown = status.text === 'Active' ? getCountdown(contest.endTime) : '-';
 
                             return (
-                                <tr key={contest.id || contest.title} style={{ borderBottom: '1px solid #ccc' }}>
-                                    <td style={{ padding: '8px' }}>{contest.title}</td>
-                                    <td style={{ padding: '8px' }}>
-                                        {startDate ? startDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Invalid Date'}
-                                    </td>
-                                    <td style={{ padding: '8px' }}>
-                                        {endDate ? endDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Invalid Date'}
-                                    </td>
-                                    <td style={{ padding: '8px', color: status.color, fontWeight: 'bold' }}>
-                                        {status.text}
-                                    </td>
-                                    <td style={{ padding: '8px' }}>{countdown}</td>
-                                    <td style={{ padding: '8px' }}>
-                                        <button onClick={() => onAddProblemClick(contest.id)}>Add Problem</button>
+                                <tr key={contest.id}>
+                                    <td>{contest.title}</td>
+                                    <td>{startDate ? startDate.toLocaleString('en-IN') : 'Invalid Date'}</td>
+                                    <td>{endDate ? endDate.toLocaleString('en-IN') : 'Invalid Date'}</td>
+                                    <td>{status.text}</td>
+                                    <td className="contest-actions">
+                                        <button onClick={() => onAddProblemClick(contest.id)} className="admin-button secondary">Add Problem</button>
                                         {status.text === 'Finished' && !contest.isFinalized && (
-                                        <button onClick={() => handleFinalize(contest.id)} style={{ marginLeft: '10px' }}>
-                                            Finalize Leaderboard
-                                        </button>
-                                    )}
+                                            <button onClick={() => handleFinalize(contest.id)} className="admin-button primary finalize-button">
+                                                Finalize
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             );
                         })
                     ) : (
                         <tr>
-                            <td colSpan="6" style={{ padding: '8px', textAlign: 'center' }}>
+                            <td colSpan="5" style={{ textAlign: 'center' }}>
                                 No contests found. Create one!
                             </td>
                         </tr>

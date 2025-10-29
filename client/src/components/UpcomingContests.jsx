@@ -1,10 +1,11 @@
-// client/src/components/ActiveContests.jsx
+// client/src/components/UpcomingContests.jsx
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase.js';
 import { getContestStatus, parseFirestoreDate } from '../utils/contestUtils.js';
+import CountdownTimer from './CountdownTimer.jsx';
 import '../css/ContestWidgets.css';
 
-function ActiveContests({ onEnterContest, onLeaderboardClick }) {
+function UpcomingContests({ onLeaderboardClick }) {
   const [contests, setContests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,8 +25,8 @@ function ActiveContests({ onEnterContest, onLeaderboardClick }) {
 
         if (!response.ok) throw new Error('Failed to fetch contests.');
         const data = await response.json();
-        const activeContests = data.filter(contest => getContestStatus(contest.startTime, contest.endTime).text === 'Active');
-        setContests(activeContests);
+        const upcomingContests = data.filter(contest => getContestStatus(contest.startTime, contest.endTime).text === 'Upcoming');
+        setContests(upcomingContests);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -49,24 +50,25 @@ function ActiveContests({ onEnterContest, onLeaderboardClick }) {
           <div key={contest.id} className="contest-item-card">
             <div className="card-header">
               <h3 className="card-title">{contest.title}</h3>
-              <span className="card-status active">Active</span>
+              <span className="card-status upcoming">Upcoming</span>
             </div>
             <p className="card-description">{contest.description}</p>
             <div className="card-time">
               <p>Starts: {startDate?.toLocaleString()}</p>
               <p>Ends: {endDate?.toLocaleString()}</p>
             </div>
+            {startDate && <CountdownTimer targetDate={startDate} prefix="Starts in: " />}
             <div className="card-buttons" style={{ marginTop: '15px' }}>
-              <button onClick={() => onEnterContest(contest.id)} className="card-button primary">Enter Contest</button>
+              <button disabled className="card-button primary">Enter Contest</button>
               <button onClick={() => onLeaderboardClick(contest.id)} className="card-button secondary">View Leaderboard</button>
             </div>
           </div>
         );
       }) : (
-        <p style={{ color: '#666' }}>No active contests at the moment.</p>
+        <p style={{ color: '#666' }}>No upcoming contests at the moment.</p>
       )}
     </>
   );
 }
 
-export default ActiveContests;
+export default UpcomingContests;
