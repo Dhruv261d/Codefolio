@@ -98,9 +98,10 @@ function StudentProfile({ onSolveClick, onPracticeClick }) {
                     classForValue={(value) => {
                         if (!value || value.count === 0) return 'color-github-0';
                         // Scale the activity to the 4 colors
-                        if (value.count > 6) return 'color-github-4';
-                        if (value.count > 4) return 'color-github-3';
-                        if (value.count > 2) return 'color-github-2';
+                        if (value.count == 1) return 'color-github-1';
+                        if (value.count == 2) return 'color-github-2';
+                        if (value.count == 3) return 'color-github-3';
+                        if (value.count >= 4) return 'color-github-4';
                         return 'color-github-1';
                     }}
                     // --- THIS IS THE FIX for the tooltip ---
