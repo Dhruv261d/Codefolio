@@ -30,16 +30,39 @@ const PORT = process.env.PORT || 5000;
 const db = admin.firestore();
 
 // --- Security Middlewares ---
+// const verifyToken = async (req, res, next) => {
+//   const idToken = req.headers.authorization?.split('Bearer ')[1];
+//   if (!idToken) return res.status(401).json({ message: 'Unauthorized' });
+//   try {
+//     req.user = await admin.auth().verifyIdToken(idToken);
+//     next();
+//   } catch (error) {
+//     return res.status(403).json({ message: 'Forbidden' });
+//   }
+// };
+
 const verifyToken = async (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
-  if (!idToken) return res.status(401).json({ message: 'Unauthorized' });
+  if (!idToken) return res.status(401).json({ message: 'Unauthorized - No Token' });
+
   try {
-    req.user = await admin.auth().verifyIdToken(idToken);
+    const verifyResponse = await axios.get(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.FIREBASE_API_KEY}`, {
+      headers: { 'Content-Type': 'application/json' },
+      data: { idToken }
+    });
+
+    if (!verifyResponse.data.users || verifyResponse.data.users.length === 0) {
+      throw new Error("Invalid user");
+    }
+
+    req.user = verifyResponse.data.users[0];
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Forbidden' });
+    console.error("Firebase REST verify failed:", error.message);
+    return res.status(401).json({ message: 'Unauthorized - Invalid Token' });
   }
 };
+
 
 const verifyAdmin = async (req, res, next) => {
   const userDoc = await db.collection('users').doc(req.user.uid).get();
