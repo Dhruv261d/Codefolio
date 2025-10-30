@@ -13,7 +13,12 @@ admin.initializeApp({
 });
 
 const app = express();
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: ["https://codefolio-dc15e.web.app", "https://codefolio-dc15e.firebaseapp.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
