@@ -6,11 +6,16 @@ require('dotenv').config();
 const axios = require('axios');
 
 //const serviceAccount = require('./serviceAccountKey.json');
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.applicationDefault()
 });
+
 
 const app = express();
 // app.use(cors());
