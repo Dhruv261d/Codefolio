@@ -41,6 +41,11 @@ const db = admin.firestore();
 //   }
 // };
 
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
+
+
 const verifyToken = async (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
   if (!idToken) return res.status(401).json({ message: 'Unauthorized - No Token' });
