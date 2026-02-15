@@ -12,9 +12,13 @@ const axios = require('axios');
 //   credential: admin.credential.cert(serviceAccount)
 // });
 
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON 
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON) 
+  : require("./serviceAccountKey.json");
+
 admin.initializeApp({
-  credential: admin.credential.applicationDefault()
-});
+  credential: admin.credential.cert(serviceAccount)
+});;
 
 
 const app = express();
